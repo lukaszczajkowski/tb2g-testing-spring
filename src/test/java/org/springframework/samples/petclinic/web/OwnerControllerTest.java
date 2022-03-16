@@ -21,6 +21,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.reset;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +49,17 @@ class OwnerControllerTest {
         // this is needed because the bean in the test context is being reused, so we invoke the same
         // method more than once
         reset(clinicService);
+    }
+
+    @Test
+    void testNewOwnerPostValid() throws Exception {
+        mockMvc.perform(post("/owners/new")
+                    .param("firstName", "Jimmy")
+                    .param("lastName", "Buffet")
+                    .param("address", "123 Duval St")
+                    .param("city", "Key West")
+                    .param("telephone", "3211231234"))
+                .andExpect(status().is3xxRedirection());
     }
 
     @Test
