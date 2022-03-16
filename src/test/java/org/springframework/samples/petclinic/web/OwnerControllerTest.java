@@ -39,6 +39,9 @@ class OwnerControllerTest {
     @Captor
     ArgumentCaptor<String> stringArgumentCaptor;
 
+    @Captor
+    ArgumentCaptor<Owner> ownerArgumentCaptor;
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(ownerController).build();
@@ -73,6 +76,47 @@ class OwnerControllerTest {
                 .andExpect(model().attributeHasFieldErrors("owner", "address"))
                 .andExpect(model().attributeHasFieldErrors("owner", "telephone"))
                 .andExpect(view().name("owners/createOrUpdateOwnerForm"));
+    }
+
+    @Test
+    void shouldUpdateOwnerForm() throws Exception {
+        final String firstName = "Jimmy";
+        final String lastName = "Buffet";
+        final String address = "123 Duval St";
+        final String city = "Key West";
+        final String telephone = "3211231234";
+        Owner owner = new Owner();
+        owner.setId(1);
+        owner.setFirstName(firstName);
+        owner.setLastName(lastName);
+        owner.setAddress(address);
+        owner.setCity(city);
+        owner.setTelephone(telephone);
+
+        mockMvc.perform(post("/owners/{ownerId}/edit", 1)
+                    .param("firstName", firstName)
+                    .param("lastName", lastName)
+                    .param("address", address)
+                    .param("city", city)
+                    .param("telephone", telephone))
+                .andExpect(status().is3xxRedirection());
+
+        then(clinicService).should().saveOwner(ownerArgumentCaptor.capture());
+        assertThat(ownerArgumentCaptor.getValue()).isNotNull();
+        assertThat(ownerArgumentCaptor.getValue().getId()).isEqualTo(owner.getId());
+    }
+
+    @Test
+    void shouldHaveErrorsWhileUpdatingForm() throws Exception {
+        mockMvc.perform(post("/owners/{ownerId}/edit", 1)
+                    .param("firstName", "Jimmy")
+                    .param("lastName", "Buffet")
+                    .param("city", "Key West"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("owners/createOrUpdateOwnerForm"))
+                .andExpect(model().attributeHasErrors("owner"))
+                .andExpect(model().attributeHasFieldErrors("owner", "telephone"))
+                .andExpect(model().attributeHasFieldErrors("owner", "address"));
     }
 
     @Test
