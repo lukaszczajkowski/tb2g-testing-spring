@@ -63,6 +63,19 @@ class OwnerControllerTest {
     }
 
     @Test
+    void testNewOwnerPostNotValid() throws Exception {
+        mockMvc.perform(post("/owners/new")
+                    .param("firstName", "Jimmy")
+                    .param("lastName", "Buffet")
+                    .param("city", "Key West"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeHasErrors("owner"))
+                .andExpect(model().attributeHasFieldErrors("owner", "address"))
+                .andExpect(model().attributeHasFieldErrors("owner", "telephone"))
+                .andExpect(view().name("owners/createOrUpdateOwnerForm"));
+    }
+
+    @Test
     void initCreationFormTest() throws Exception {
         mockMvc.perform(get("/owners/new"))
                 .andExpect(status().isOk())
