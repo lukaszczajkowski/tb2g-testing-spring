@@ -34,4 +34,12 @@ class OwnerControllerTest {
                 .andExpect(model().attributeExists("owner"))
                 .andExpect(view().name("owners/createOrUpdateOwnerForm"));
     }
+
+    @Test
+    void testFindByNameNotFound() throws Exception {
+        mockMvc.perform(get("/owners")
+                .param("lastName", "DontFindMe"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("owners/findOwners"));
+    }
 }
